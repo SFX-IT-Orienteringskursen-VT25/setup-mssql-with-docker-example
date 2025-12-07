@@ -2,5 +2,5 @@
 
 public static class SqlCredentials
 {
-    public const string Password = "password123!";
+    public const string Password = "MyStrongPassword123!";
 }

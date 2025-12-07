@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace SetupMssqlExample;
 
@@ -21,13 +22,13 @@ public static class Database
         BEGIN
             CREATE TABLE {TableName} (
                 [Id] INT PRIMARY KEY IDENTITY,
-                [Value] VARCHAR(50) NOT NULL
+                [Value] INT NOT NULL
             );
         END";
         createTableCommand.ExecuteNonQuery();
     }
 
-    public static void InsertValue(string value)
+    public static void InsertValue(int value)
     {
         using var sqlConnection = CreateConnection();
         using var insertCommand = sqlConnection.CreateCommand();
@@ -38,6 +39,47 @@ public static class Database
         insertCommand.ExecuteNonQuery();
     }
 
+    // calculate sum of input
+    public static int GetSum()
+    {
+        using var sqlConnection = CreateConnection();
+        using var cmd = sqlConnection.CreateCommand();
+        
+        // use SUM in SQL
+        cmd.CommandText = $@"USE {DbName}; SELECT SUM(Value) FROM {TableName};";
+        
+        // ExecuteScalar write results
+        var result = cmd.ExecuteScalar();
+
+        // check if result is DBNull
+        if (result == DBNull.Value || result == null)
+        {
+            return 0;
+        }
+
+        return Convert.ToInt32(result);
+    }
+    // for persisted number
+    public static List<int> GetAllNumbers()
+    {
+        using var sqlConnection = CreateConnection();
+        using var cmd = sqlConnection.CreateCommand();
+
+        cmd.CommandText = $@"USE {DbName}; SELECT Value FROM {TableName};";
+        
+        using var reader = cmd.ExecuteReader();
+        var list = new List<int>();
+
+        while (reader.Read())
+        {
+            if (!reader.IsDBNull(0))
+            {
+                list.Add(reader.GetInt32(0));
+            }
+        }
+
+        return list;
+    }
     public static void Select()
     {
         using var sqlConnection = CreateConnection();
