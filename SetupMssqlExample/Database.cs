@@ -2,12 +2,12 @@
 
 namespace SetupMssqlExample;
 
-public static class Database
+public class Database : IDatabase
 {
     private const string TableName = "MyTable";
     private const string DbName = "MyDatabase";
 
-    public static void Setup()
+    public void Setup()
     {
         using var sqlConnection = CreateConnection();
         using var createDbCommand = sqlConnection.CreateCommand();
@@ -27,7 +27,7 @@ public static class Database
         createTableCommand.ExecuteNonQuery();
     }
 
-    public static void InsertValue(string value)
+    public void InsertValue(string value)
     {
         using var sqlConnection = CreateConnection();
         using var insertCommand = sqlConnection.CreateCommand();
@@ -38,7 +38,7 @@ public static class Database
         insertCommand.ExecuteNonQuery();
     }
 
-    public static void Select()
+    public void Select()
     {
         using var sqlConnection = CreateConnection();
         using var insertCommand = sqlConnection.CreateCommand();
@@ -58,7 +58,7 @@ public static class Database
         Console.WriteLine("Rows in database: " + rowsInDb.Count);
     }
 
-    public static void DeleteAll()
+    public void DeleteAll()
     {
         using var sqlConnection = CreateConnection();
         using var insertCommand = sqlConnection.CreateCommand();

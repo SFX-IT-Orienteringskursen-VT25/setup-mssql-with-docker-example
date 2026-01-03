@@ -1,14 +1,18 @@
 using SetupMssqlExample;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<IDatabase, Database>();
+
 var app = builder.Build();
 
 await DockerStarter.StartDockerContainerAsync();
 
-Database.Setup();
-Database.InsertValue(DateTime.UtcNow.DayOfWeek.ToString());
-Database.Select();
-Database.DeleteAll();
-Database.Select();
+var database = app.Services.GetRequiredService<IDatabase>();
+database.Setup();
+database.InsertValue(DateTime.UtcNow.DayOfWeek.ToString());
+database.Select();
+database.DeleteAll();
+database.Select();
 
 await app.RunAsync();
