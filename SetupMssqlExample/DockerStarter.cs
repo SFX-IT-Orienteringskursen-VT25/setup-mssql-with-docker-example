@@ -1,12 +1,14 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
+using System.Runtime.InteropServices;
 namespace SetupMssqlExample;
 
 public class DockerStarter
 {
     public static async Task StartDockerContainerAsync()
     {
-        var dockerClient = new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine")).CreateClient();
+        var dockerUri = GetDockerUri();
+        var dockerClient = new DockerClientConfiguration(new Uri(dockerUri)).CreateClient();
 
         await dockerClient.Images.CreateImageAsync(
             new ImagesCreateParameters { FromImage = "mcr.microsoft.com/mssql/server", Tag = "2022-latest" },
@@ -21,6 +23,16 @@ public class DockerStarter
         {
 
         });
+    }
+
+    private static string GetDockerUri()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return "npipe://./pipe/docker_engine";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return "unix:///var/run/docker.sock";
+
+        throw new PlatformNotSupportedException("Unsupported OS platform for Docker connection.");
     }
 
     private static async Task<bool> StartContainerIfItExists(DockerClient dockerClient)
